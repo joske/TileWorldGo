@@ -47,8 +47,8 @@ func onTimeout(grid *Grid, view *GridView) bool {
 }
 
 func (v GridView) drawGrid(cr *cairo.Context) {
-	for c := uint8(0); c < 10; c++ {
-		for r := uint8(0); r < 10; r++ {
+	for c := uint8(0); c < v.grid.cols; c++ {
+		for r := uint8(0); r < v.grid.rows; r++ {
 			o := v.grid.Object(NewLocation(c, r))
 			if o != nil {
 				drawObject(cr, o, float64(c)*MAG, float64(r)*MAG)
@@ -58,6 +58,8 @@ func (v GridView) drawGrid(cr *cairo.Context) {
 }
 
 func drawObject(cr *cairo.Context, o *GridObject, x, y float64) {
+	cr.SetSourceRGB(0, 0, 0)
+	cr.SetLineWidth(2)
 	switch o.objectType {
 	case TypeAgent:
 		drawAgent(cr, o, x, y)
@@ -76,30 +78,25 @@ func drawObject(cr *cairo.Context, o *GridObject, x, y float64) {
 
 func drawAgent(cr *cairo.Context, o *GridObject, x, y float64) {
 	cr.NewPath()
-	cr.SetLineWidth(2)
-	cr.SetSourceRGB(0, 0, 0)
+	cr.SetSourceRGB(setColor(o.num, cr))
 	cr.Rectangle(x, y, MAG, MAG)
 	cr.Stroke()
 }
 
 func drawTile(cr *cairo.Context, o *GridObject, x, y float64) {
 	cr.NewPath()
-	cr.SetLineWidth(2)
-	cr.SetSourceRGB(0, 0, 0)
 	cr.Arc(x+MAG/2, y+MAG/2, MAG/2, 0, 2*math.Pi)
 	cr.Stroke()
 }
 
 func drawHole(cr *cairo.Context, o *GridObject, x, y float64) {
 	cr.NewPath()
-	cr.SetSourceRGB(0, 0, 0)
 	cr.Arc(x+MAG/2, y+MAG/2, MAG/2, 0, 2*math.Pi)
 	cr.Fill()
 }
 
 func drawObstacle(cr *cairo.Context, o *GridObject, x, y float64) {
 	cr.NewPath()
-	cr.SetSourceRGB(0, 0, 0)
 	cr.Rectangle(x, y, MAG, MAG)
 	cr.Fill()
 }
@@ -107,4 +104,22 @@ func drawObstacle(cr *cairo.Context, o *GridObject, x, y float64) {
 // Show show the window
 func (v GridView) Show() {
 	v.win.ShowAll()
+}
+
+func setColor(i uint8, cr *cairo.Context) (float64, float64, float64) {
+	switch i {
+	case 0:
+		return 0, 0, 255
+	case 1:
+		return 255, 0, 0
+	case 2:
+		return 0, 255, 0
+	case 3:
+		return 128, 128, 0
+	case 4:
+		return 0, 128, 128
+	case 5:
+		return 128, 0, 128
+	}
+	return 0, 0, 0
 }

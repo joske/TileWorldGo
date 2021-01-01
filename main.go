@@ -9,15 +9,15 @@ import (
 
 // some globals
 const (
-	COLS = 10
-	ROWS = 10
+	COLS = 40
+	ROWS = 40
 )
 
 func main() {
 	fmt.Println("start")
 	gtk.Init(nil)
 	fmt.Println("gtk inited")
-	grid := tileworld.NewGrid(COLS, ROWS, 1, 1, 1, 1)
+	grid := tileworld.NewGrid(COLS, ROWS, 6, 20, 20, 20)
 	fmt.Println("grid created")
 	view := tileworld.GridViewNew(grid)
 	fmt.Println("view created")
