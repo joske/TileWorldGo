@@ -1,6 +1,9 @@
 package tileworld
 
-import "fmt"
+import (
+	"fmt"
+	"math"
+)
 
 // Direction is a direction
 type Direction uint8
@@ -41,6 +44,11 @@ func (l Location) NextLocation(dir Direction) *Location {
 	return nil
 }
 
+// Distance gives the manhattan distance between 2 locations
+func (l Location) Distance(o Location) int {
+	return int(math.Abs(float64(l.col-o.col)) + math.Abs(float64(l.row-o.row)))
+}
+
 func (l Location) String() string {
-	return "(" + fmt.Sprintf("%d", l.col) + "," + fmt.Sprintf("%d", l.row) + ")"
+	return fmt.Sprintf("(%d, %d)", l.col, l.row)
 }

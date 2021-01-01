@@ -99,7 +99,7 @@ func (g Grid) printGrid() {
 }
 
 func (g Grid) updateAgent(o *GridObject) {
-	fmt.Printf("UpdateAgent %s\n", o.location)
+	fmt.Printf("UpdateAgent %s", o)
 	d := rand.Intn(4) + 1
 	nextLocation := o.Location().NextLocation(Direction(d))
 	for !g.isValidLocation(nextLocation) || !g.isFreeLocation(nextLocation) {
@@ -107,6 +107,7 @@ func (g Grid) updateAgent(o *GridObject) {
 		nextLocation = o.Location().NextLocation(Direction(d))
 	}
 	g.move(o, nextLocation)
+	fmt.Printf(" -> %s\n", nextLocation)
 }
 
 func (g Grid) move(o *GridObject, l *Location) {
