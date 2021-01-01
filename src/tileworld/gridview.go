@@ -79,13 +79,15 @@ func drawAgent(cr *cairo.Context, o *GridObject, x, y float64) {
 	cr.SetLineWidth(2)
 	cr.SetSourceRGB(0, 0, 0)
 	cr.Rectangle(x, y, MAG, MAG)
+	cr.Stroke()
 }
 
 func drawTile(cr *cairo.Context, o *GridObject, x, y float64) {
 	cr.NewPath()
 	cr.SetLineWidth(2)
 	cr.SetSourceRGB(0, 0, 0)
-	cr.Arc(x, y, MAG, 0, 2*math.Pi)
+	cr.Arc(x+MAG/2, y+MAG/2, MAG/2, 0, 2*math.Pi)
+	cr.Stroke()
 }
 
 func drawHole(cr *cairo.Context, o *GridObject, x, y float64) {

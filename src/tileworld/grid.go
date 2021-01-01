@@ -72,8 +72,8 @@ func (g Grid) Update() {
 }
 
 func (g Grid) printGrid() {
-	for c := uint8(0); c < g.cols; c++ {
-		for r := uint8(0); r < g.rows; r++ {
+	for r := uint8(0); r < g.rows; r++ {
+		for c := uint8(0); c < g.cols; c++ {
 			o := g.Object(NewLocation(c, r))
 			if o != nil {
 				switch o.objectType {
