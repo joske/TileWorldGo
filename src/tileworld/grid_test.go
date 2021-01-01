@@ -3,7 +3,7 @@ package tileworld
 import "testing"
 
 func testGridOneObject(t *testing.T) {
-	var grid = NewGrid(10, 10)
+	var grid = NewGrid(10, 10, 1, 0, 0, 0)
 	l := NewLocation(1, 1)
 	grid.SetObject(NewGridObject(l, TypeAgent, 1), l)
 	o := grid.Object(l)

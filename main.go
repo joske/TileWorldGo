@@ -17,7 +17,7 @@ func main() {
 	fmt.Println("start")
 	gtk.Init(nil)
 	fmt.Println("gtk inited")
-	grid := tileworld.NewGrid(COLS, ROWS)
+	grid := tileworld.NewGrid(COLS, ROWS, 1, 1, 1, 1)
 	fmt.Println("grid created")
 	view := tileworld.GridViewNew(grid)
 	fmt.Println("view created")

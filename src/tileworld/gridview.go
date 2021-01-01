@@ -1,6 +1,7 @@
 package tileworld
 
 import (
+	"math"
 	"time"
 
 	"github.com/gotk3/gotk3/cairo"
@@ -57,6 +58,45 @@ func (v GridView) drawGrid(cr *cairo.Context) {
 }
 
 func drawObject(cr *cairo.Context, o *GridObject, x, y float64) {
+	switch o.objectType {
+	case TypeAgent:
+		drawAgent(cr, o, x, y)
+		break
+	case TypeTile:
+		drawTile(cr, o, x, y)
+		break
+	case TypeHole:
+		drawHole(cr, o, x, y)
+		break
+	case TypeObstacle:
+		drawObstacle(cr, o, x, y)
+		break
+	}
+}
+
+func drawAgent(cr *cairo.Context, o *GridObject, x, y float64) {
+	cr.NewPath()
+	cr.SetLineWidth(2)
+	cr.SetSourceRGB(0, 0, 0)
+	cr.Rectangle(x, y, MAG, MAG)
+}
+
+func drawTile(cr *cairo.Context, o *GridObject, x, y float64) {
+	cr.NewPath()
+	cr.SetLineWidth(2)
+	cr.SetSourceRGB(0, 0, 0)
+	cr.Arc(x, y, MAG, 0, 2*math.Pi)
+}
+
+func drawHole(cr *cairo.Context, o *GridObject, x, y float64) {
+	cr.NewPath()
+	cr.SetSourceRGB(0, 0, 0)
+	cr.Arc(x+MAG/2, y+MAG/2, MAG/2, 0, 2*math.Pi)
+	cr.Fill()
+}
+
+func drawObstacle(cr *cairo.Context, o *GridObject, x, y float64) {
+	cr.NewPath()
 	cr.SetSourceRGB(0, 0, 0)
 	cr.Rectangle(x, y, MAG, MAG)
 	cr.Fill()
