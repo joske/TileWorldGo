@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+	"math/rand"
+	"time"
 
 	"github.com/gotk3/gotk3/gtk"
 	"sourcery.be/tileworld/src/tileworld"
@@ -14,6 +16,7 @@ const (
 )
 
 func main() {
+	rand.Seed(time.Now().UnixNano())
 	fmt.Println("start")
 	gtk.Init(nil)
 	fmt.Println("gtk inited")
