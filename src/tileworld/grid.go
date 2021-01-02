@@ -146,6 +146,11 @@ func (g Grid) moveToTile(o *GridObject) {
 		o.state = StateIdle
 		return
 	}
+	potentialTile := g.getClosestTile(o.location)
+	if potentialTile != o.tile {
+		o.tile = potentialTile
+		o.path = GetPath(&g, o.location, o.tile.location)
+	}
 	if len(o.path) == 0 {
 		o.path = GetPath(&g, o.location, o.tile.location)
 		printPath(o.path)
@@ -178,6 +183,11 @@ func (g Grid) moveToHole(o *GridObject) {
 		// hole gone
 		o.state = StateIdle
 		return
+	}
+	potentialHole := g.getClosestHole(o.location)
+	if potentialHole != o.hole {
+		o.hole = potentialHole
+		o.path = GetPath(&g, o.location, o.hole.location)
 	}
 	if len(o.path) == 0 {
 		o.path = GetPath(&g, o.location, o.hole.location)
