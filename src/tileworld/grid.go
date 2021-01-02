@@ -91,7 +91,11 @@ func (g Grid) printGrid() {
 			if o != nil {
 				switch o.objectType {
 				case TypeAgent:
-					fmt.Print("A")
+					if o.hasTile {
+						fmt.Print("Å")
+					} else {
+						fmt.Print("A")
+					}
 					break
 				case TypeTile:
 					fmt.Print("T")
@@ -164,7 +168,7 @@ func (g Grid) moveToTile(o *GridObject) {
 }
 func printPath(path []Direction) {
 	fmt.Printf("path:")
-	for d := range path {
+	for _, d := range path {
 		fmt.Printf("%d ", d)
 	}
 	fmt.Print("\n")
