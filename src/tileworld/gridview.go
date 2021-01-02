@@ -27,7 +27,7 @@ func GridViewNew(grid *Grid) *GridView {
 	view := new(GridView)
 	view.grid = grid
 	view.win, _ = gtk.WindowNew(gtk.WINDOW_TOPLEVEL)
-	view.win.SetDefaultSize(int(grid.cols)*int(MAG), int(grid.rows)*int(MAG))
+	view.win.SetDefaultSize(int(grid.cols)*int(MAG)+250, int(grid.rows)*int(MAG))
 	view.da, _ = gtk.DrawingAreaNew()
 
 	view.da.Connect("draw", func(da *gtk.DrawingArea, cr *cairo.Context) {
@@ -44,7 +44,7 @@ func onTimeout(grid *Grid, view *GridView) bool {
 	for {
 		grid.Update()
 		view.win.QueueDrawArea(0, 0, view.win.GetAllocatedWidth(), view.win.GetAllocatedHeight())
-		time.Sleep((time.Second))
+		time.Sleep(500 * time.Millisecond)
 	}
 }
 
@@ -56,6 +56,15 @@ func (v GridView) drawGrid(cr *cairo.Context) {
 				drawObject(cr, o, float64(c)*MAG, float64(r)*MAG)
 			}
 		}
+	}
+	x := float64(v.grid.cols)*MAG + 20
+	y := float64(20)
+	for i := 0; i < len(v.grid.agents); i++ {
+		a := v.grid.agents[i]
+		cr.SetSourceRGB(setColor(a.num, cr))
+		cr.NewPath()
+		drawText(cr, x, y+float64(a.num)*MAG, fmt.Sprintf("Agent %d: %d", a.num+1, a.score))
+		cr.Stroke()
 	}
 }
 

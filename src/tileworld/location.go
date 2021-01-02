@@ -67,7 +67,7 @@ func (l Location) Distance(o *Location) int {
 
 // Equals equality
 func (l Location) Equals(o *Location) bool {
-	if l.col == o.col && l.row == l.row {
+	if l.col == o.col && l.row == o.row {
 		return true
 	}
 	return false
