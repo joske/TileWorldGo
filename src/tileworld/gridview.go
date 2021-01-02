@@ -44,7 +44,7 @@ func onTimeout(grid *Grid, view *GridView) bool {
 	for {
 		grid.Update()
 		view.win.QueueDrawArea(0, 0, view.win.GetAllocatedWidth(), view.win.GetAllocatedHeight())
-		time.Sleep(500 * time.Millisecond)
+		time.Sleep(200 * time.Millisecond)
 	}
 }
 

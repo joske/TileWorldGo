@@ -29,7 +29,7 @@ func GetPath(grid *Grid, from, to *Location) []Direction {
 func generateNext(g *Grid, to *Location, path []*Location, queue *treemap.Map, dir Direction) {
 	last := path[len(path)-1]
 	nextLocation := last.NextLocation(dir)
-	if g.isValidLocation(nextLocation) || last == to {
+	if nextLocation.Equals(to) || g.isValidLocation(nextLocation) {
 		newPath := []*Location{}
 		newPath = append(newPath, path...)
 		if !hasLoop(newPath, nextLocation) {

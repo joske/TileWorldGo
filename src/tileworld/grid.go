@@ -148,7 +148,7 @@ func (g Grid) moveToTile(o *GridObject) {
 	}
 	if len(o.path) == 0 {
 		o.path = GetPath(&g, o.location, o.tile.location)
-		fmt.Printf("path:%s\n", o.path)
+		printPath(o.path)
 	} else {
 		dir := o.path[0]
 		o.path = o.path[1:]
@@ -157,7 +157,13 @@ func (g Grid) moveToTile(o *GridObject) {
 		fmt.Printf(" -> %s\n", nextLocation)
 	}
 }
-
+func printPath(path []Direction) {
+	fmt.Printf("path:")
+	for d := range path {
+		fmt.Printf("%d ", d)
+	}
+	fmt.Print("\n")
+}
 func (g Grid) moveToHole(o *GridObject) {
 	if o.location.Equals(o.hole.location) {
 		o.DumpTile()
@@ -175,7 +181,7 @@ func (g Grid) moveToHole(o *GridObject) {
 	}
 	if len(o.path) == 0 {
 		o.path = GetPath(&g, o.location, o.hole.location)
-		fmt.Printf("path:%s\n", o.path)
+		printPath(o.path)
 	} else {
 		dir := o.path[0]
 		o.path = o.path[1:]
@@ -232,5 +238,5 @@ func (g Grid) isFreeLocation(l *Location) bool {
 }
 
 func (g Grid) isValidLocation(l *Location) bool {
-	return l.col < g.cols && l.col >= 0 && l.row >= 0 && l.row < g.rows
+	return l.col < g.cols && l.col >= 0 && l.row >= 0 && l.row < g.rows && g.isFreeLocation(l)
 }
