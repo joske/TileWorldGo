@@ -2,6 +2,7 @@ package tileworld
 
 import (
 	"fmt"
+	"math"
 	"math/rand"
 )
 
@@ -33,10 +34,7 @@ func NewGrid(cols, rows, numAgents, numTiles, numHoles, numObstacles uint8) *Gri
 		g.agents[i] = o
 	}
 	for i := uint8(0); i < numTiles; i++ {
-		l := g.RandomFreeLocation(cols, rows)
-		o := NewGridObject(l, TypeTile, i)
-		g.SetObject(o, l)
-		g.tiles[i] = o
+		g.createTile(i)
 	}
 	for i := uint8(0); i < numHoles; i++ {
 		l := g.RandomFreeLocation(cols, rows)
@@ -50,6 +48,21 @@ func NewGrid(cols, rows, numAgents, numTiles, numHoles, numObstacles uint8) *Gri
 		g.SetObject(o, l)
 	}
 	return g
+}
+
+func (g Grid) createTile(i uint8) {
+	l := g.RandomFreeLocation(g.cols, g.rows)
+	o := NewGridObject(l, TypeTile, i)
+	o.score = rand.Intn(6) + 1
+	g.SetObject(o, l)
+	g.tiles[i] = o
+}
+
+func (g Grid) createHole(i uint8) {
+	l := g.RandomFreeLocation(g.cols, g.rows)
+	o := NewGridObject(l, TypeHole, i)
+	g.SetObject(o, l)
+	g.holes[i] = o
 }
 
 // Object get an object at given coordinates
@@ -99,15 +112,77 @@ func (g Grid) printGrid() {
 }
 
 func (g Grid) updateAgent(o *GridObject) {
-	fmt.Printf("UpdateAgent %s", o)
-	d := rand.Intn(4) + 1
-	nextLocation := o.Location().NextLocation(Direction(d))
-	for !g.isValidLocation(nextLocation) || !g.isFreeLocation(nextLocation) {
-		d := rand.Intn(4) + 1
-		nextLocation = o.Location().NextLocation(Direction(d))
+	fmt.Printf("UpdateAgent %s\n", o)
+	switch o.state {
+	case StateIdle:
+		g.idle(o)
+		break
+	case StateToTile:
+		g.moveToTile(o)
+		break
+	case StateToHole:
+		g.moveToHole(o)
+		break
 	}
-	g.move(o, nextLocation)
-	fmt.Printf(" -> %s\n", nextLocation)
+}
+
+func (g Grid) idle(o *GridObject) {
+	o.hasTile = false
+	o.tile = g.getClosestTile(o.location)
+	o.hole = nil
+	o.state = StateToTile
+}
+
+func (g Grid) moveToTile(o *GridObject) {
+	if o.location.Equals(o.tile.location) {
+		o.PickTile()
+		g.createTile(o.tile.num)
+		o.hole = g.getClosestHole(o.location)
+		o.state = StateToHole
+		return
+	}
+	if g.Object(o.tile.location) != o.tile {
+		// tile gone
+		o.state = StateIdle
+		return
+	}
+	if len(o.path) == 0 {
+		o.path = GetPath(&g, o.location, o.tile.location)
+		fmt.Printf("path:%s\n", o.path)
+	} else {
+		dir := o.path[0]
+		o.path = o.path[1:]
+		nextLocation := o.location.NextLocation(dir)
+		g.move(o, nextLocation)
+		fmt.Printf(" -> %s\n", nextLocation)
+	}
+}
+
+func (g Grid) moveToHole(o *GridObject) {
+	if o.location.Equals(o.hole.location) {
+		o.DumpTile()
+		g.createHole(o.hole.num)
+		o.tile = g.getClosestTile(o.location)
+		o.state = StateToTile
+		o.hasTile = false
+		o.hole = nil
+		return
+	}
+	if g.Object(o.hole.location) != o.hole {
+		// hole gone
+		o.state = StateIdle
+		return
+	}
+	if len(o.path) == 0 {
+		o.path = GetPath(&g, o.location, o.hole.location)
+		fmt.Printf("path:%s\n", o.path)
+	} else {
+		dir := o.path[0]
+		o.path = o.path[1:]
+		nextLocation := o.location.NextLocation(dir)
+		g.move(o, nextLocation)
+		fmt.Printf(" -> %s\n", nextLocation)
+	}
 }
 
 func (g Grid) move(o *GridObject, l *Location) {
@@ -115,6 +190,28 @@ func (g Grid) move(o *GridObject, l *Location) {
 	g.SetObject(nil, oldLocation)
 	g.SetObject(o, l)
 	o.SetLocation(l)
+}
+
+func (g Grid) getClosestTile(l *Location) *GridObject {
+	return g.getClosestObject(TypeTile, g.tiles, l)
+}
+
+func (g Grid) getClosestHole(l *Location) *GridObject {
+	return g.getClosestObject(TypeHole, g.holes, l)
+}
+
+func (g Grid) getClosestObject(t ObjectType, a []*GridObject, l *Location) *GridObject {
+	closest := math.MaxInt64
+	var best *GridObject
+	for i := 0; i < len(a); i++ {
+		o := a[i]
+		dist := o.location.Distance(l)
+		if dist < closest {
+			closest = dist
+			best = o
+		}
+	}
+	return best
 }
 
 // RandomFreeLocation get a free location on the grid

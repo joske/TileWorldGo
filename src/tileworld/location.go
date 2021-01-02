@@ -2,7 +2,6 @@ package tileworld
 
 import (
 	"fmt"
-	"math"
 )
 
 // Direction is a direction
@@ -44,11 +43,43 @@ func (l Location) NextLocation(dir Direction) *Location {
 	return nil
 }
 
+// GetDirection returns the directino the next location is in
+func (l Location) GetDirection(next *Location) Direction {
+	if l.row == next.row {
+		if l.col == next.col+1 {
+			return Left
+		} else {
+			return Right
+		}
+	} else {
+		if l.row == next.row+1 {
+			return Up
+		} else {
+			return Down
+		}
+	}
+}
+
 // Distance gives the manhattan distance between 2 locations
-func (l Location) Distance(o Location) int {
-	return int(math.Abs(float64(l.col-o.col)) + math.Abs(float64(l.row-o.row)))
+func (l Location) Distance(o *Location) int {
+	return abs(int(l.col)-int(o.col)) + abs(int(l.row)-int(o.row))
+}
+
+// Equals equality
+func (l Location) Equals(o *Location) bool {
+	if l.col == o.col && l.row == l.row {
+		return true
+	}
+	return false
 }
 
 func (l Location) String() string {
 	return fmt.Sprintf("(%d, %d)", l.col, l.row)
+}
+
+func abs(x int) int {
+	if x < 0 {
+		return -x
+	}
+	return x
 }

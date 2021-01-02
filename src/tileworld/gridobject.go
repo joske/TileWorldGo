@@ -1,6 +1,8 @@
 package tileworld
 
-import "fmt"
+import (
+	"fmt"
+)
 
 // ObjectType defines the type
 type ObjectType uint8
@@ -13,15 +15,27 @@ const (
 	TypeObstacle ObjectType = 4
 )
 
+// State state of the agent
+type State uint8
+
+// State state of the agent
+const (
+	StateIdle   State = 0
+	StateToTile State = 1
+	StateToHole State = 2
+)
+
 // GridObject an object on the grid
 type GridObject struct {
 	location   *Location
 	num        uint8
 	score      int
 	objectType ObjectType
+	state      State
 	hasTile    bool
 	tile       *GridObject
 	hole       *GridObject
+	path       []Direction
 }
 
 // NewGridObject create
@@ -31,6 +45,9 @@ func NewGridObject(l *Location, t ObjectType, n uint8) *GridObject {
 	o.objectType = t
 	o.num = n
 	o.score = 0
+	o.state = StateIdle
+	o.hasTile = false
+	o.tile = nil
 	return o
 }
 
@@ -56,20 +73,22 @@ func (o *GridObject) SetHole(t *GridObject) {
 
 // PickTile we now have a tile
 func (o *GridObject) PickTile() {
+	fmt.Printf("%s - pickTile\n", o)
 	o.hasTile = true
 }
 
 // DumpTile we now have a tile
 func (o *GridObject) DumpTile() {
+	fmt.Printf("%s - DumpTile\n", o)
 	o.hasTile = false
+	o.score += o.tile.score
 }
 
 func (o *GridObject) String() string {
 	var s string
 	switch o.objectType {
 	case TypeAgent:
-		s = "Agent"
-		break
+		return fmt.Sprintf("Agent(%d) @%s in state %d, hasTile=%t, tile=%s, hole=%s", o.num, o.location, o.state, o.hasTile, o.tile, o.hole)
 	case TypeTile:
 		s = "Tile"
 		break

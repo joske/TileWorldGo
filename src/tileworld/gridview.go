@@ -1,11 +1,13 @@
 package tileworld
 
 import (
+	"fmt"
 	"math"
 	"time"
 
 	"github.com/gotk3/gotk3/cairo"
 	"github.com/gotk3/gotk3/gtk"
+	"github.com/gotk3/gotk3/pango"
 )
 
 const (
@@ -81,11 +83,22 @@ func drawAgent(cr *cairo.Context, o *GridObject, x, y float64) {
 	cr.SetSourceRGB(setColor(o.num, cr))
 	cr.Rectangle(x, y, MAG, MAG)
 	cr.Stroke()
+	if o.hasTile {
+		cr.NewPath()
+		cr.Arc(x+MAG/2, y+MAG/2, MAG/2, 0, 2*math.Pi)
+		cr.Stroke()
+		cr.NewPath()
+		drawText(cr, x+MAG/4, y+3, fmt.Sprintf("%d", o.tile.score))
+		cr.Stroke()
+	}
 }
 
 func drawTile(cr *cairo.Context, o *GridObject, x, y float64) {
 	cr.NewPath()
 	cr.Arc(x+MAG/2, y+MAG/2, MAG/2, 0, 2*math.Pi)
+	cr.Stroke()
+	cr.NewPath()
+	drawText(cr, x+MAG/4, y+3, fmt.Sprintf("%d", o.score))
 	cr.Stroke()
 }
 
@@ -99,6 +112,18 @@ func drawObstacle(cr *cairo.Context, o *GridObject, x, y float64) {
 	cr.NewPath()
 	cr.Rectangle(x, y, MAG, MAG)
 	cr.Fill()
+}
+
+func drawText(cr *cairo.Context, x, y float64, text string) {
+	layout := pango.CairoCreateLayout(cr)
+	layout.SetText(text, len(text))
+	font := pango.FontDescriptionNew()
+	font.SetFamily("Monospace")
+	font.SetWeight(pango.WEIGHT_BOLD)
+	layout.SetFontDescription(font)
+	cr.MoveTo(x, y)
+	pango.CairoShowLayout(cr, layout)
+	cr.Stroke()
 }
 
 // Show show the window
