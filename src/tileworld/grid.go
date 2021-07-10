@@ -153,10 +153,10 @@ func (g Grid) moveToTile(o *GridObject) {
 	potentialTile := g.getClosestTile(o.location)
 	if potentialTile != o.tile {
 		o.tile = potentialTile
-		o.path = GetPath(&g, o.location, o.tile.location)
+		o.path = GetPathAStar(&g, o.location, o.tile.location)
 	}
 	if len(o.path) == 0 {
-		o.path = GetPath(&g, o.location, o.tile.location)
+		o.path = GetPathAStar(&g, o.location, o.tile.location)
 		printPath(o.path)
 	} else {
 		dir := o.path[0]
@@ -191,10 +191,10 @@ func (g Grid) moveToHole(o *GridObject) {
 	potentialHole := g.getClosestHole(o.location)
 	if potentialHole != o.hole {
 		o.hole = potentialHole
-		o.path = GetPath(&g, o.location, o.hole.location)
+		o.path = GetPathAStar(&g, o.location, o.hole.location)
 	}
 	if len(o.path) == 0 {
-		o.path = GetPath(&g, o.location, o.hole.location)
+		o.path = GetPathAStar(&g, o.location, o.hole.location)
 		printPath(o.path)
 	} else {
 		dir := o.path[0]
