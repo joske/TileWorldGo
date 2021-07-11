@@ -4,78 +4,51 @@ import (
 	"container/heap"
 
 	"github.com/emirpasic/gods/sets/treeset"
-	"github.com/emirpasic/gods/utils"
 )
 
 func comp(a, b interface{}) int {
 	aK := a.(*Node)
 	bK := b.(*Node)
-	return utils.IntComparator(aK.priority, bK.priority)
+	return aK.location.Distance(bK.location)
 }
 
-func GetPathAStar(grid *Grid, from, to *Location) []Direction {
-	openList := make(PriorityQueue, 10)
+func GetPathAStar(grid *Grid, from, to *Location) []Location {
+	openList := make(PriorityQueue, 0)
 	closedList := treeset.NewWith(comp)
 	fromNode := new(Node)
 	fromNode.location = from
-	fromNode.parent = nil
+	fromNode.path = make([]Location, 0)
 	fromNode.priority = 0
 	heap.Push(&openList, fromNode)
 	heap.Init(&openList)
 	for openList.Len() > 0 {
 		current := heap.Pop(&openList).(*Node)
-		if current.location == to {
+		if current.location.Equals(to) {
 			// arrived
-			return makePathFromNode(current, from)
+			return current.path
 		}
 		closedList.Add(current)
-		checkNeighbor(grid, current, openList, closedList, Up, from, to)
-		checkNeighbor(grid, current, openList, closedList, Down, from, to)
-		checkNeighbor(grid, current, openList, closedList, Right, from, to)
-		checkNeighbor(grid, current, openList, closedList, Left, from, to)
+		checkNeighbor(grid, current, &openList, closedList, Up, from, to)
+		checkNeighbor(grid, current, &openList, closedList, Down, from, to)
+		checkNeighbor(grid, current, &openList, closedList, Right, from, to)
+		checkNeighbor(grid, current, &openList, closedList, Left, from, to)
 	}
-	return []Direction{}
+	return []Location{}
 }
 
-func checkNeighbor(grid *Grid, current *Node, openList PriorityQueue, closedList *treeset.Set, dir Direction, from, to *Location) {
+func checkNeighbor(grid *Grid, current *Node, openList *PriorityQueue, closedList *treeset.Set, dir Direction, from, to *Location) {
 	nextLoc := current.location.NextLocation(dir)
-	if nextLoc == to || grid.isValidLocation(nextLoc) {
+	if nextLoc.Equals(to) || grid.isValidLocation(nextLoc) {
 		h := nextLoc.Distance(to)
-		g := current.location.Distance(from) + 1
+		g := len(current.path) + 1
 		child := &Node{
-			parent:   current,
+			path:     current.path,
 			priority: g + h,
 			location: nextLoc,
 		}
+		child.path = append(child.path, *nextLoc)
 		if !closedList.Contains(child) {
-			heap.Push(&openList, child)
-		}
-	}
-}
-
-func makePathFromNode(end *Node, from *Location) []Direction {
-	directions := []Direction{}
-	current := end
-	parent := end.parent
-	for current.location != from {
-		d := moveFromParent(current.location, parent.location)
-		directions = append(directions, d)
-	}
-	return directions
-}
-
-func moveFromParent(current, parent *Location) Direction {
-	if current.col == parent.col {
-		if parent.row == current.row-1 {
-			return Down
-		} else {
-			return Up
-		}
-	} else {
-		if parent.col == current.col-1 {
-			return Right
-		} else {
-			return Left
+			heap.Push(openList, child)
 		}
 	}
 }

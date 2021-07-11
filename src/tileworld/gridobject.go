@@ -35,7 +35,7 @@ type GridObject struct {
 	hasTile    bool
 	tile       *GridObject
 	hole       *GridObject
-	path       []Direction
+	path       []Location
 }
 
 // NewGridObject create
@@ -91,13 +91,10 @@ func (o *GridObject) String() string {
 		return fmt.Sprintf("Agent(%d) @%s in state %d, hasTile=%t, tile=%s, hole=%s", o.num, o.location, o.state, o.hasTile, o.tile, o.hole)
 	case TypeTile:
 		s = "Tile"
-		break
 	case TypeHole:
 		s = "Hole"
-		break
 	default:
 		s = "Obstacle"
-		break
 	}
 	return fmt.Sprintf("%s(%d) @%s", s, o.num, o.location)
 }

@@ -8,7 +8,7 @@ import (
 
 // Grid encapsulates the grid
 type Grid struct {
-	cols, rows uint8
+	cols, rows int8
 	objects    [][]*GridObject
 	agents     []*GridObject
 	tiles      []*GridObject
@@ -16,7 +16,7 @@ type Grid struct {
 }
 
 // NewGrid constructor
-func NewGrid(cols, rows, numAgents, numTiles, numHoles, numObstacles uint8) *Grid {
+func NewGrid(cols, rows int8, numAgents, numTiles, numHoles, numObstacles uint8) *Grid {
 	g := new(Grid)
 	g.cols = cols
 	g.rows = rows
@@ -85,8 +85,8 @@ func (g Grid) Update() {
 }
 
 func (g Grid) printGrid() {
-	for r := uint8(0); r < g.rows; r++ {
-		for c := uint8(0); c < g.cols; c++ {
+	for r := int8(0); r < g.rows; r++ {
+		for c := int8(0); c < g.cols; c++ {
 			o := g.Object(NewLocation(c, r))
 			if o != nil {
 				switch o.objectType {
@@ -96,16 +96,12 @@ func (g Grid) printGrid() {
 					} else {
 						fmt.Print("A")
 					}
-					break
 				case TypeTile:
 					fmt.Print("T")
-					break
 				case TypeHole:
 					fmt.Print("H")
-					break
 				case TypeObstacle:
 					fmt.Print("#")
-					break
 				}
 			} else {
 				fmt.Print(".")
@@ -120,13 +116,10 @@ func (g Grid) updateAgent(o *GridObject) {
 	switch o.state {
 	case StateIdle:
 		g.idle(o)
-		break
 	case StateToTile:
 		g.moveToTile(o)
-		break
 	case StateToHole:
 		g.moveToHole(o)
-		break
 	}
 }
 
@@ -159,14 +152,13 @@ func (g Grid) moveToTile(o *GridObject) {
 		o.path = GetPathAStar(&g, o.location, o.tile.location)
 		printPath(o.path)
 	} else {
-		dir := o.path[0]
+		nextLocation := &o.path[0]
 		o.path = o.path[1:]
-		nextLocation := o.location.NextLocation(dir)
 		g.move(o, nextLocation)
 		fmt.Printf(" -> %s\n", nextLocation)
 	}
 }
-func printPath(path []Direction) {
+func printPath(path []Location) {
 	fmt.Printf("path:")
 	for _, d := range path {
 		fmt.Printf("%d ", d)
@@ -197,9 +189,8 @@ func (g Grid) moveToHole(o *GridObject) {
 		o.path = GetPathAStar(&g, o.location, o.hole.location)
 		printPath(o.path)
 	} else {
-		dir := o.path[0]
+		nextLocation := &o.path[0]
 		o.path = o.path[1:]
-		nextLocation := o.location.NextLocation(dir)
 		g.move(o, nextLocation)
 		fmt.Printf(" -> %s\n", nextLocation)
 	}
@@ -235,13 +226,13 @@ func (g Grid) getClosestObject(t ObjectType, a []*GridObject, l *Location) *Grid
 }
 
 // RandomFreeLocation get a free location on the grid
-func (g Grid) RandomFreeLocation(cols uint8, rows uint8) *Location {
-	c := uint8(rand.Intn(int(cols)))
-	r := uint8(rand.Intn(int(rows)))
+func (g Grid) RandomFreeLocation(cols int8, rows int8) *Location {
+	c := int8(rand.Intn(int(cols)))
+	r := int8(rand.Intn(int(rows)))
 	l := NewLocation(c, r)
 	for !g.isFreeLocation(l) {
-		c = uint8(rand.Intn(int(cols)))
-		r = uint8(rand.Intn(int(rows)))
+		c = int8(rand.Intn(int(cols)))
+		r = int8(rand.Intn(int(rows)))
 		l = NewLocation(c, r)
 	}
 	return l

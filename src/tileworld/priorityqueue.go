@@ -1,14 +1,10 @@
 package tileworld
 
-import (
-	"container/heap"
-)
-
 // An Node is something we manage in a priority queue.
 type Node struct {
-	location *Location // The value of the Node; arbitrary.
-	parent   *Node     // parent Node
-	priority int       // The priority of the Node in the queue. (f in A* algorithm)
+	location *Location  // The value of the Node; arbitrary.
+	path     []Location // array of locations
+	priority int        // The priority of the Node in the queue. (f in A* algorithm)
 	// The index is needed by update and is maintained by the heap.Interface methods.
 	index int // The index of the Node in the heap.
 }
@@ -44,11 +40,4 @@ func (pq *PriorityQueue) Pop() interface{} {
 	Node.index = -1 // for safety
 	*pq = old[0 : n-1]
 	return Node
-}
-
-// update modifies the priority and value of an Node in the queue.
-func (pq *PriorityQueue) update(Node *Node, value *Location, priority int) {
-	Node.location = value
-	Node.priority = priority
-	heap.Fix(pq, Node.index)
 }

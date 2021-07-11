@@ -49,8 +49,8 @@ func onTimeout(grid *Grid, view *GridView) bool {
 }
 
 func (v GridView) drawGrid(cr *cairo.Context) {
-	for c := uint8(0); c < v.grid.cols; c++ {
-		for r := uint8(0); r < v.grid.rows; r++ {
+	for c := int8(0); c < v.grid.cols; c++ {
+		for r := int8(0); r < v.grid.rows; r++ {
 			o := v.grid.Object(NewLocation(c, r))
 			if o != nil {
 				drawObject(cr, o, float64(c)*MAG, float64(r)*MAG)
@@ -74,16 +74,12 @@ func drawObject(cr *cairo.Context, o *GridObject, x, y float64) {
 	switch o.objectType {
 	case TypeAgent:
 		drawAgent(cr, o, x, y)
-		break
 	case TypeTile:
 		drawTile(cr, o, x, y)
-		break
 	case TypeHole:
 		drawHole(cr, o, x, y)
-		break
 	case TypeObstacle:
 		drawObstacle(cr, o, x, y)
-		break
 	}
 }
 

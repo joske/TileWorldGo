@@ -17,11 +17,11 @@ const (
 
 // Location is a location on the grid: col = x, row = y
 type Location struct {
-	col, row uint8
+	col, row int8
 }
 
 // NewLocation is a constructor
-func NewLocation(col, row uint8) *Location {
+func NewLocation(col, row int8) *Location {
 	l := new(Location)
 	l.col = col
 	l.row = row
