@@ -131,37 +131,9 @@ func (g Grid) idle(o *GridObject) {
 }
 
 func (g Grid) moveToTile(o *GridObject) {
-	if o.location.Equals(o.tile.location) {
-		o.PickTile()
-		g.createTile(o.tile.num)
-		o.hole = g.getClosestHole(o.location)
-		o.state = StateToHole
-		return
-	}
-	if g.Object(o.tile.location) != o.tile {
-		// tile gone
-		o.state = StateIdle
-		return
-	}
-	potentialTile := g.getClosestTile(o.location)
-	if potentialTile != o.tile {
-		o.tile = potentialTile
-		o.path = GetPathAStar(&g, o.location, o.tile.location)
-	}
-	if len(o.path) == 0 {
-		o.path = GetPathAStar(&g, o.location, o.tile.location)
-		printPath(o.path)
-	} else {
-		nextLocation := &o.path[0]
-		if g.isValidLocation(nextLocation) || nextLocation.Equals(o.tile.location) {
-			o.path = o.path[1:]
-			g.move(o, nextLocation)
-			fmt.Printf(" -> %s\n", nextLocation)
-		} else {
-			o.path = nil
-		}
-	}
+	g.moveToObject(o, o.tile)
 }
+
 func printPath(path []Location) {
 	fmt.Printf("path:")
 	for _, d := range path {
@@ -169,39 +141,62 @@ func printPath(path []Location) {
 	}
 	fmt.Print("\n")
 }
+
 func (g Grid) moveToHole(o *GridObject) {
-	if o.location.Equals(o.hole.location) {
-		o.DumpTile()
-		g.createHole(o.hole.num)
-		o.tile = g.getClosestTile(o.location)
-		o.state = StateToTile
-		o.hasTile = false
-		o.hole = nil
+	g.moveToObject(o, o.hole)
+}
+
+func (g Grid) moveToObject(agent *GridObject, o *GridObject) {
+	if agent.location.Equals(o.location) {
+		if agent.state == StateToTile {
+			g.PickTile(agent, o)
+		} else {
+			g.DumpTile(agent, o)
+		}
 		return
 	}
-	if g.Object(o.hole.location) != o.hole {
-		// hole gone
-		o.state = StateIdle
+	if g.Object(o.location) != o {
+		if agent.state == StateToTile {
+			// tile gone
+			agent.tile = g.getClosestTile(agent.location)
+			agent.path = GetPathAStar(&g, agent.location, agent.tile.location)
+		} else {
+			// hole gone
+			agent.hole = g.getClosestHole(agent.location)
+			agent.path = GetPathAStar(&g, agent.location, agent.hole.location)
+		}
 		return
 	}
-	potentialHole := g.getClosestHole(o.location)
-	if potentialHole != o.hole {
-		o.hole = potentialHole
-		o.path = GetPathAStar(&g, o.location, o.hole.location)
-	}
-	if len(o.path) == 0 {
-		o.path = GetPathAStar(&g, o.location, o.hole.location)
-		printPath(o.path)
+
+	if len(agent.path) == 0 {
+		agent.path = GetPathAStar(&g, agent.location, o.location)
+		printPath(agent.path)
 	} else {
-		nextLocation := &o.path[0]
-		if g.isValidLocation(nextLocation) || nextLocation.Equals(o.hole.location) {
-			o.path = o.path[1:]
-			g.move(o, nextLocation)
+		nextLocation := &agent.path[0]
+		if g.isValidLocation(nextLocation) || nextLocation.Equals(o.location) {
+			agent.path = agent.path[1:]
+			g.move(agent, nextLocation)
 			fmt.Printf(" -> %s\n", nextLocation)
 		} else {
-			o.path = nil
+			agent.path = nil
 		}
 	}
+}
+
+func (g Grid) DumpTile(agent *GridObject, o *GridObject) {
+	agent.DumpTile()
+	g.createHole(agent.hole.num)
+	agent.tile = g.getClosestTile(agent.location)
+	agent.state = StateToTile
+	agent.hasTile = false
+	agent.hole = nil
+}
+
+func (g Grid) PickTile(agent *GridObject, o *GridObject) {
+	agent.PickTile()
+	g.createTile(agent.tile.num)
+	agent.hole = g.getClosestHole(agent.location)
+	agent.state = StateToHole
 }
 
 func (g Grid) move(o *GridObject, l *Location) {
