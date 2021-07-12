@@ -1,5 +1,7 @@
 package tileworld
 
+import "fmt"
+
 // An Node is something we manage in a priority queue.
 type Node struct {
 	location *Location  // The value of the Node; arbitrary.
@@ -7,6 +9,10 @@ type Node struct {
 	priority int        // The priority of the Node in the queue. (f in A* algorithm)
 	// The index is needed by update and is maintained by the heap.Interface methods.
 	index int // The index of the Node in the heap.
+}
+
+func (n Node) String() string {
+	return fmt.Sprintf("Node(@%s, path:%s, priority:%d", n.location, n.path, n.priority)
 }
 
 // A PriorityQueue implements heap.Interface and holds Nodes.
@@ -40,4 +46,17 @@ func (pq *PriorityQueue) Pop() interface{} {
 	Node.index = -1 // for safety
 	*pq = old[0 : n-1]
 	return Node
+}
+
+type Filter_func func(elem *Node) bool
+
+func Filter(pq *PriorityQueue, fn Filter_func) []*Node {
+	contained := make([]*Node, 0)
+	for _, elem := range *pq {
+		going_in := fn(elem)
+		if going_in {
+			contained = append(contained, elem)
+		}
+	}
+	return contained
 }

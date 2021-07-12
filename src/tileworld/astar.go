@@ -42,13 +42,17 @@ func checkNeighbor(grid *Grid, current *Node, openList *PriorityQueue, closedLis
 		h := nextLoc.Distance(to)
 		g := len(current.path) + 1
 		child := &Node{
-			path:     current.path,
+			path:     make([]Location, 0),
 			priority: g + h,
 			location: nextLoc,
 		}
+		child.path = append(child.path, current.path...)
 		child.path = append(child.path, *nextLoc)
 		if !closedList.Contains(child) {
-			heap.Push(openList, child)
+			better := Filter(openList, func(elem *Node) bool { return elem.location.Equals(to) && elem.priority < child.priority })
+			if len(better) == 0 { // don't add this node, it's got a worse path
+				heap.Push(openList, child)
+			}
 		}
 	}
 }
