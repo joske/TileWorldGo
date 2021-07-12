@@ -31,16 +31,29 @@ type GridObject struct {
 	num        uint8
 	score      int
 	objectType ObjectType
-	state      State
-	hasTile    bool
-	tile       *GridObject
-	hole       *GridObject
-	path       []Location
+}
+
+type Agent struct {
+	GridObject
+	state   State
+	hasTile bool
+	tile    *GridObject
+	hole    *GridObject
+	path    []Location
 }
 
 // NewGridObject create
 func NewGridObject(l *Location, t ObjectType, n uint8) *GridObject {
 	o := new(GridObject)
+	o.location = l
+	o.num = n
+	o.score = 0
+	o.objectType = t
+	return o
+}
+
+func NewAgent(l *Location, t ObjectType, n uint8) *Agent {
+	o := new(Agent)
 	o.location = l
 	o.objectType = t
 	o.num = n
@@ -62,23 +75,23 @@ func (o *GridObject) SetLocation(l *Location) {
 }
 
 // SetTile assign a tile
-func (o *GridObject) SetTile(t *GridObject) {
+func (o *Agent) SetTile(t *GridObject) {
 	o.tile = t
 }
 
 // SetHole assign a tile
-func (o *GridObject) SetHole(t *GridObject) {
+func (o *Agent) SetHole(t *GridObject) {
 	o.hole = t
 }
 
 // PickTile we now have a tile
-func (o *GridObject) PickTile() {
+func (o *Agent) PickTile() {
 	fmt.Printf("%s - pickTile\n", o)
 	o.hasTile = true
 }
 
 // DumpTile we now have a tile
-func (o *GridObject) DumpTile() {
+func (o *Agent) DumpTile() {
 	fmt.Printf("%s - DumpTile\n", o)
 	o.hasTile = false
 	o.score += o.tile.score
@@ -88,7 +101,7 @@ func (o *GridObject) String() string {
 	var s string
 	switch o.objectType {
 	case TypeAgent:
-		return fmt.Sprintf("Agent(%d) @%s in state %d, hasTile=%t, tile=%s, hole=%s", o.num, o.location, o.state, o.hasTile, o.tile, o.hole)
+		return fmt.Sprintf("Agent(%d) @%s", o.num, o.location)
 	case TypeTile:
 		s = "Tile"
 	case TypeHole:

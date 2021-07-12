@@ -53,7 +53,7 @@ func (v GridView) drawGrid(cr *cairo.Context) {
 		for r := int8(0); r < v.grid.rows; r++ {
 			o := v.grid.Object(NewLocation(c, r))
 			if o != nil {
-				drawObject(cr, o, float64(c)*MAG, float64(r)*MAG)
+				v.drawObject(cr, o, float64(c)*MAG, float64(r)*MAG)
 			}
 		}
 	}
@@ -68,12 +68,13 @@ func (v GridView) drawGrid(cr *cairo.Context) {
 	}
 }
 
-func drawObject(cr *cairo.Context, o *GridObject, x, y float64) {
+func (v GridView) drawObject(cr *cairo.Context, o *GridObject, x, y float64) {
 	cr.SetSourceRGB(0, 0, 0)
 	cr.SetLineWidth(2)
 	switch o.objectType {
 	case TypeAgent:
-		drawAgent(cr, o, x, y)
+		a := v.grid.agents[o.num]
+		drawAgent(cr, a, x, y)
 	case TypeTile:
 		drawTile(cr, o, x, y)
 	case TypeHole:
@@ -83,7 +84,7 @@ func drawObject(cr *cairo.Context, o *GridObject, x, y float64) {
 	}
 }
 
-func drawAgent(cr *cairo.Context, o *GridObject, x, y float64) {
+func drawAgent(cr *cairo.Context, o *Agent, x, y float64) {
 	cr.NewPath()
 	cr.SetSourceRGB(setColor(o.num, cr))
 	cr.Rectangle(x, y, MAG, MAG)

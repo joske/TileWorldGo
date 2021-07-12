@@ -10,7 +10,7 @@ import (
 type Grid struct {
 	cols, rows int8
 	objects    [][]*GridObject
-	agents     []*GridObject
+	agents     []*Agent
 	tiles      []*GridObject
 	holes      []*GridObject
 }
@@ -24,13 +24,13 @@ func NewGrid(cols, rows int8, numAgents, numTiles, numHoles, numObstacles uint8)
 	for i := 0; i < int(rows); i++ {
 		g.objects[i] = make([]*GridObject, rows)
 	}
-	g.agents = make([]*GridObject, numAgents)
+	g.agents = make([]*Agent, numAgents)
 	g.tiles = make([]*GridObject, numTiles)
 	g.holes = make([]*GridObject, numHoles)
 	for i := uint8(0); i < numAgents; i++ {
 		l := g.RandomFreeLocation(cols, rows)
-		o := NewGridObject(l, TypeAgent, i)
-		g.SetObject(o, l)
+		o := NewAgent(l, TypeAgent, i)
+		g.SetObject(&o.GridObject, l)
 		g.agents[i] = o
 	}
 	for i := uint8(0); i < numTiles; i++ {
@@ -91,7 +91,8 @@ func (g Grid) printGrid() {
 			if o != nil {
 				switch o.objectType {
 				case TypeAgent:
-					if o.hasTile {
+					a := g.agents[o.num]
+					if a.hasTile {
 						fmt.Print("Å")
 					} else {
 						fmt.Print("A")
@@ -111,7 +112,7 @@ func (g Grid) printGrid() {
 	}
 }
 
-func (g Grid) updateAgent(o *GridObject) {
+func (g Grid) updateAgent(o *Agent) {
 	fmt.Printf("UpdateAgent %s\n", o)
 	switch o.state {
 	case StateIdle:
@@ -123,14 +124,14 @@ func (g Grid) updateAgent(o *GridObject) {
 	}
 }
 
-func (g Grid) idle(o *GridObject) {
+func (g Grid) idle(o *Agent) {
 	o.hasTile = false
 	o.tile = g.getClosestTile(o.location)
 	o.hole = nil
 	o.state = StateToTile
 }
 
-func (g Grid) moveToTile(o *GridObject) {
+func (g Grid) moveToTile(o *Agent) {
 	g.moveToObject(o, o.tile)
 }
 
@@ -142,11 +143,11 @@ func printPath(path []Location) {
 	fmt.Print("\n")
 }
 
-func (g Grid) moveToHole(o *GridObject) {
+func (g Grid) moveToHole(o *Agent) {
 	g.moveToObject(o, o.hole)
 }
 
-func (g Grid) moveToObject(agent *GridObject, o *GridObject) {
+func (g Grid) moveToObject(agent *Agent, o *GridObject) {
 	if agent.location.Equals(o.location) {
 		if agent.state == StateToTile {
 			g.PickTile(agent, o)
@@ -175,7 +176,7 @@ func (g Grid) moveToObject(agent *GridObject, o *GridObject) {
 		nextLocation := &agent.path[0]
 		if g.isValidLocation(nextLocation) || nextLocation.Equals(o.location) {
 			agent.path = agent.path[1:]
-			g.move(agent, nextLocation)
+			g.move(&agent.GridObject, nextLocation)
 			fmt.Printf(" -> %s\n", nextLocation)
 		} else {
 			agent.path = nil
@@ -183,7 +184,7 @@ func (g Grid) moveToObject(agent *GridObject, o *GridObject) {
 	}
 }
 
-func (g Grid) DumpTile(agent *GridObject, o *GridObject) {
+func (g Grid) DumpTile(agent *Agent, o *GridObject) {
 	agent.DumpTile()
 	g.createHole(agent.hole.num)
 	agent.tile = g.getClosestTile(agent.location)
@@ -192,7 +193,7 @@ func (g Grid) DumpTile(agent *GridObject, o *GridObject) {
 	agent.hole = nil
 }
 
-func (g Grid) PickTile(agent *GridObject, o *GridObject) {
+func (g Grid) PickTile(agent *Agent, o *GridObject) {
 	agent.PickTile()
 	g.createTile(agent.tile.num)
 	agent.hole = g.getClosestHole(agent.location)
