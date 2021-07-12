@@ -1,9 +1,5 @@
 package tileworld
 
-import (
-	"fmt"
-)
-
 // ObjectType defines the type
 type ObjectType uint8
 
@@ -86,28 +82,11 @@ func (o *Agent) SetHole(t *GridObject) {
 
 // PickTile we now have a tile
 func (o *Agent) PickTile() {
-	fmt.Printf("%s - pickTile\n", o)
 	o.hasTile = true
 }
 
 // DumpTile we now have a tile
 func (o *Agent) DumpTile() {
-	fmt.Printf("%s - DumpTile\n", o)
 	o.hasTile = false
 	o.score += o.tile.score
-}
-
-func (o *GridObject) String() string {
-	var s string
-	switch o.objectType {
-	case TypeAgent:
-		return fmt.Sprintf("Agent(%d) @%s", o.num, o.location)
-	case TypeTile:
-		s = "Tile"
-	case TypeHole:
-		s = "Hole"
-	default:
-		s = "Obstacle"
-	}
-	return fmt.Sprintf("%s(%d) @%s", s, o.num, o.location)
 }

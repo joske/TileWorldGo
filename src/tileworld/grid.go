@@ -77,7 +77,6 @@ func (g Grid) SetObject(o *GridObject, l *Location) {
 
 // Update update grid
 func (g Grid) Update() {
-	fmt.Println("Update")
 	for _, a := range g.agents {
 		g.updateAgent(a)
 	}
@@ -110,10 +109,12 @@ func (g Grid) printGrid() {
 		}
 		fmt.Println()
 	}
+	for _, a := range g.agents {
+		fmt.Printf("Agent %d: %d\n", a.num, a.score)
+	}
 }
 
 func (g Grid) updateAgent(o *Agent) {
-	fmt.Printf("UpdateAgent %s\n", o)
 	switch o.state {
 	case StateIdle:
 		g.idle(o)
@@ -125,22 +126,12 @@ func (g Grid) updateAgent(o *Agent) {
 }
 
 func (g Grid) idle(o *Agent) {
-	o.hasTile = false
 	o.tile = g.getClosestTile(o.location)
-	o.hole = nil
 	o.state = StateToTile
 }
 
 func (g Grid) moveToTile(o *Agent) {
 	g.moveToObject(o, o.tile)
-}
-
-func printPath(path []Location) {
-	fmt.Printf("path:")
-	for _, d := range path {
-		fmt.Printf("%d ", d)
-	}
-	fmt.Print("\n")
 }
 
 func (g Grid) moveToHole(o *Agent) {
@@ -171,13 +162,12 @@ func (g Grid) moveToObject(agent *Agent, o *GridObject) {
 
 	if len(agent.path) == 0 {
 		agent.path = GetPathAStar(&g, agent.location, o.location)
-		printPath(agent.path)
-	} else {
+	}
+	if len(agent.path) > 0 {
 		nextLocation := &agent.path[0]
 		if g.isValidLocation(nextLocation) || nextLocation.Equals(o.location) {
 			agent.path = agent.path[1:]
 			g.move(&agent.GridObject, nextLocation)
-			fmt.Printf(" -> %s\n", nextLocation)
 		} else {
 			agent.path = nil
 		}
@@ -191,6 +181,7 @@ func (g Grid) DumpTile(agent *Agent, o *GridObject) {
 	agent.state = StateToTile
 	agent.hasTile = false
 	agent.hole = nil
+	agent.path = nil
 }
 
 func (g Grid) PickTile(agent *Agent, o *GridObject) {
