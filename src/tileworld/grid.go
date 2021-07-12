@@ -153,9 +153,13 @@ func (g Grid) moveToTile(o *GridObject) {
 		printPath(o.path)
 	} else {
 		nextLocation := &o.path[0]
-		o.path = o.path[1:]
-		g.move(o, nextLocation)
-		fmt.Printf(" -> %s\n", nextLocation)
+		if g.isValidLocation(nextLocation) || nextLocation.Equals(o.tile.location) {
+			o.path = o.path[1:]
+			g.move(o, nextLocation)
+			fmt.Printf(" -> %s\n", nextLocation)
+		} else {
+			o.path = nil
+		}
 	}
 }
 func printPath(path []Location) {
@@ -190,9 +194,13 @@ func (g Grid) moveToHole(o *GridObject) {
 		printPath(o.path)
 	} else {
 		nextLocation := &o.path[0]
-		o.path = o.path[1:]
-		g.move(o, nextLocation)
-		fmt.Printf(" -> %s\n", nextLocation)
+		if g.isValidLocation(nextLocation) || nextLocation.Equals(o.hole.location) {
+			o.path = o.path[1:]
+			g.move(o, nextLocation)
+			fmt.Printf(" -> %s\n", nextLocation)
+		} else {
+			o.path = nil
+		}
 	}
 }
 
